@@ -1,108 +1,200 @@
-# Yolo - FaceEmotionAI 项目介绍
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python" />
+  <img src="https://img.shields.io/badge/YOLO-11n-seg-brightgreen" alt="YOLO" />
+  <img src="https://img.shields.io/badge/DeepSORT-1.3.2-orange" alt="DeepSORT" />
+  <img src="https://img.shields.io/badge/dataset-fer2013-purple" alt="fer2013" />
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
+</p>
 
-## 项目概述
-Yolo - FaceEmotionAI 是一个结合 YOLO 目标检测算法与深度学习技术的人脸情绪识别项目。项目利用 fer2013 数据集进行训练，旨在实现对图像、视频或摄像头实时画面中的人脸情绪进行精准识别。它涵盖了模型训练、模型转换、图形用户界面交互等多个功能模块，为开发者和研究者提供了一个完整的人脸情绪识别解决方案。
+<h1 align="center">Yolo-FaceEmotionAI</h1>
+<p align="center"><strong>YOLO 人脸检测 + DeepSORT 多目标追踪 + 8 类情绪识别</strong></p>
+<p align="center">图像 / 视频 / 摄像头实时画面，一键检测人脸情绪——Anger、Contempt、Disgust、Fear、Happy、Neutral、Sad、Surprise</p>
 
-## 项目结构
-```plaintext
-Yolo-FaceEmotionAI/
-├── data/
-│   ├── train/
-│   │   └── images/
-│   ├── valid/
-│   │   └── images/
-│   └── test/
-│       └── images/
-├── function/
-│   ├── color
-│   ├── tracking
-│   ├── image
-│   ├── model_loader.py
-│   ├── frame_processor.py
-│   ├── video_processor.py
-│   └── image_processor.py
-├── gui/
-│   └── main_gui.py
-├── utils/
-│   ├── setup.py
-│   └── model_onnx.py
-├── models/
-│   ├── best.pt
-│   ├── yolo11n - seg.pt
-│   ├── train.py
-│   └── data.yaml
-```
+---
 
-## 主要模块功能
+## ✨ 能力
 
-### 数据集（fer2013）
-fer2013 是一个广泛用于人脸情绪识别研究的公开数据集，包含了大量标注好的人脸图像，涵盖了多种不同的情绪类别。在本项目中，数据集被划分为训练集、验证集和测试集，分别存放在 `data/train/images`、`data/valid/images` 和 `data/test/images` 目录下，为模型的训练和评估提供了基础数据。
+| 能力 | 说明 |
+|------|------|
+| 🔍 **实例分割** | YOLO11n-seg 精准定位人脸区域，提取单人 ROI |
+| 😊 **情绪识别** | fer2013 训练微调，8 种情绪分类（Anger / Contempt / Disgust / Fear / Happy / Neutral / Sad / Surprise） |
+| 🏷️ **多目标追踪** | DeepSORT 为每张人脸分配唯一 ID，跨帧持续追踪 |
+| 🖼️ **图像检测** | 选择单张图片 → 标注人脸框 + 情绪标签 + 追踪 ID |
+| 🎬 **视频检测** | 选择视频文件 → 逐帧处理，实时预览，按 Q 退出 |
+| 📷 **摄像头** | 调用摄像头实时检测，按 Q 退出 |
+| 🖥️ **GUI 界面** | Tkinter 三按钮界面，无需命令行操作 |
 
-### 功能模块（function）
-1. **`color`**：该模块主要负责生成特定数量的颜色列表，用于在图像上绘制不同目标的边界框和标签，以便在可视化检测结果时能够清晰区分不同的目标。
-2. **`tracking`**：借助 DeepSORT 算法实现对检测到的人脸目标进行多目标跟踪。在处理视频或实时画面时，能够为每个目标分配唯一的 ID，并在图像上绘制边界框和标签，实时显示目标的 ID 和情绪信息，从而实现对目标的连续跟踪和状态监测。
-3. **`image`**：提供了图像缩放功能，可将输入的图像调整为指定的大小。在模型处理之前，对图像进行统一的尺寸调整有助于提高模型的处理效率和准确性。
-4. **`model_loader.py`**：负责加载实例分割和情绪识别所需的预训练模型。通过指定模型文件的路径，该模块能够快速加载相应的模型，为后续的检测和识别任务做好准备。
-5. **`frame_processor.py`**：对单帧图像进行处理，主要包括实例分割和情绪识别两个关键步骤。它接收输入的图像帧，利用加载的模型进行目标检测和情绪分类，最终返回检测结果，为后续的处理和展示提供数据支持。
-6. **`video_processor.py`**：用于处理视频文件或摄像头实时画面。它会逐帧读取视频数据，并调用 `frame_processor.py` 对每一帧进行处理，同时结合 `tracking` 模块实现多目标跟踪，将处理后的视频帧实时显示或保存。
-7. **`image_processor.py`**：专门处理单张图像。它调用 `frame_processor.py` 对输入的图像进行检测和识别，并将处理后的图像显示出来，方便用户直观查看检测结果。
+---
 
-### GUI 模块（gui）
-- **`main_gui.py`**：使用 `tkinter` 库创建了一个图形用户界面，为用户提供了一个直观、便捷的交互方式。界面上包含三个按钮，分别用于选择图像、选择视频和开启摄像头进行实时检测。用户可以通过点击相应的按钮，轻松地对不同类型的输入进行情绪识别处理。
+## 🚀 快速开始
 
-### 辅助工具模块（utils）
-1. **`setup.py`**：使用 `setuptools` 对项目进行打包，方便项目的分发和安装。它定义了项目的基本信息，如名称、版本、作者等，同时列出了项目的依赖项，确保在安装项目时能自动安装所需的库。此外，还定义了命令行入口点，方便用户在命令行中使用项目。
-2. **`model_onnx.py`**：该模块的主要功能是将训练好的 YOLO 模型转换为 ONNX 格式。ONNX 是一种开放的神经网络交换格式，支持不同深度学习框架之间的模型迁移和部署。通过将模型转换为 ONNX 格式，可以提高模型的兼容性和可移植性，使其能够在更多的设备和平台上运行。
-
-### 模型与训练模块（models）
-1. **`best.pt`**：预训练的 YOLO 模型，作为模型训练的起点。它包含了在大规模数据集上学习到的特征和模式，能够为后续的人脸情绪识别任务提供一个良好的基础。
-2. **`yolo11n - seg.pt`**：可能是一个预训练的分割模型，可用于辅助进行人脸区域的精确分割，为情绪识别提供更准确的输入。
-3. **`train.py`**：使用 `ultralytics` 库加载预训练模型，并根据 `data.yaml` 中的配置进行训练。训练过程中，模型会不断调整参数以适应 fer2013 数据集的特征，最终保存训练好的模型，用于后续的推理任务。
-4. **`data.yaml`**：数据配置文件，定义了数据集的路径、类别数量和类别名称，以及所使用的网络配置。它为模型训练提供了必要的信息，确保模型能够正确读取和处理数据。
-
-## 项目依赖
-- `numpy==1.24.3`
-- `opencv - python==4.11.0.86`
-- `ultralytics==8.3.86`
-- `deep_sort_realtime==1.3.2`
-- `tkinter`（Python 标准库）
-
-## 使用方法
-
-### 环境搭建
-确保已经安装了所需的依赖库，可以使用以下命令进行安装：
 ```bash
+# 1. 创建环境
+conda create -n face-emotion-ai python=3.10 -y
+conda activate face-emotion-ai
+
+# 2. 安装依赖
 pip install -r requirements.txt
+
+# 3. 启动 GUI
+python gui/main_gui.py
 ```
 
-### 模型训练
-运行 `models/train.py` 脚本进行模型训练：
+点击 **Select Image** / **Select Video** / **Start Camera** 即可开始检测。
+
+---
+
+## 🔄 检测流程
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  1. 输入                                                         │
+│     图像文件 / 视频文件 / 摄像头 (cv2.VideoCapture)                │
+└──────────────────────────┬───────────────────────────────────────┘
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  2. 实例分割 (YOLO11n-seg)                                       │
+│                                                                  │
+│  检测所有 class_id=0（人）的目标                                  │
+│  提取每个人脸区域的 ROI  (x1, y1, x2, y2)                         │
+└──────────────────────────┬───────────────────────────────────────┘
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  3. 情绪识别 (best.pt)                                           │
+│                                                                  │
+│  ROI → resize 640×640 → YOLO 分类                                │
+│  输出: Happy / Sad / Anger / Neutral / Surprise / ...            │
+└──────────────────────────┬───────────────────────────────────────┘
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  4. DeepSORT 追踪                                                │
+│                                                                  │
+│  detection → tracker.update_tracks()                             │
+│  分配 track_id → 绑定 emotion_label                              │
+└──────────────────────────┬───────────────────────────────────────┘
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│  5. 可视化输出                                                    │
+│                                                                  │
+│  每人绘制: 边界框 + ID:3 - Happy                                 │
+│  cv2.imshow 实时显示 / 按 Q 退出                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🏗️ 架构
+
+```
+输入（图片/视频/摄像头）
+         │
+    ┌────┴────┐
+    │  GUI    │  ← tkinter 三按钮界面 (gui/main_gui.py)
+    └────┬────┘
+         ▼
+    ┌────────┐
+    │ model  │  ← 加载 YOLO11n-seg + best.pt (function/model_loader.py)
+    │ loader │
+    └───┬────┘
+        ▼
+    ┌──────────┐
+    │  frame   │  ← 单帧：实例分割 → ROI → 情绪分类 (function/frame_processor.py)
+    │ processor│
+    └───┬──────┘
+        ▼
+    ┌──────────┐
+    │ tracking │  ← DeepSORT 多目标追踪 + ID 绑定 (function/tracking.py)
+    └───┬──────┘
+        ▼
+    ┌──────────┐
+    │  output  │  ← cv2.imshow 标注帧输出
+    └──────────┘
+```
+
+### 数据流关键节点
+
+| 阶段 | 输入 | 输出 | 核心模块 |
+|------|------|------|---------|
+| 模型加载 | `models/yolo11n-seg.pt` `models/best.pt` | seg_model, emotion_model | `model_loader.py` |
+| 实例分割 | 原始帧 | 人脸 ROI 列表 | `frame_processor.py` |
+| 情绪分类 | 人脸 ROI | emotion_label | `frame_processor.py` |
+| 目标追踪 | detections + frame | track_id + 标注帧 | `tracking.py` |
+| 流水线 | 视频帧序列 | 全部标注帧 + ID-情绪映射 | `video_processor.py` / `image_processor.py` |
+
+---
+
+## 📂 项目结构
+
+```
+Yolo-FaceEmotionAI/
+├── function/               # 核心逻辑层
+│   ├── model_loader.py     # 模型加载器
+│   ├── frame_processor.py  # 单帧检测（分割 + 情绪）
+│   ├── video_processor.py  # 视频流水线
+│   ├── image_processor.py  # 图片流水线
+│   ├── tracking.py         # DeepSORT 多目标追踪
+│   ├── color.py            # 颜色生成工具
+│   └── image.py            # 图像缩放工具
+├── gui/                    # GUI 入口
+│   └── main_gui.py         # Tkinter 界面（三按钮）
+├── models/                 # 模型与训练
+│   ├── yolo11n-seg.pt      # YOLO11 实例分割预训练权重
+│   ├── best.pt             # 情绪识别训练权重
+│   ├── data.yaml           # fer2013 数据集配置（8 类）
+│   └── train.py            # 训练脚本
+├── utils/                  # 辅助工具
+│   ├── setup.py            # setuptools 打包配置
+│   └── model_onnx.py       # YOLO → ONNX 格式转换
+├── requirements.txt        # 依赖清单
+└── LICENSE                 # MIT
+```
+
+---
+
+## 🎯 情绪类别（fer2013）
+
+| # | 情绪 | 英文 |
+|---|------|------|
+| 0 | 愤怒 | Anger |
+| 1 | 蔑视 | Contempt |
+| 2 | 厌恶 | Disgust |
+| 3 | 恐惧 | Fear |
+| 4 | 开心 | Happy |
+| 5 | 中性 | Neutral |
+| 6 | 悲伤 | Sad |
+| 7 | 惊讶 | Surprise |
+
+---
+
+## 🔧 训练自己的模型
+
 ```bash
+# 1. 准备 fer2013 数据集，按 data.yaml 配置路径
+# 2. 运行训练
 python models/train.py
 ```
 
-### 模型转换
-运行 `utils/model_onnx.py` 脚本将训练好的模型转换为 ONNX 格式：
+配置文件 `models/data.yaml`：
+
+```yaml
+train: "data/train/images"
+val:   "data/valid/images"
+test:  "data/test/images"
+nc: 8
+names: ["Anger","Contempt","Disgust","Fear","Happy","Neutral","Sad","Surprise"]
+network: "yolo11n"
+```
+
+---
+
+## 🔄 模型导出 ONNX
+
 ```bash
 python utils/model_onnx.py
 ```
 
-### 启动 GUI 界面
-运行 `gui/main_gui.py` 脚本启动图形用户界面：
-```bash
-python gui/main_gui.py
-```
-在 GUI 界面中，根据需要选择相应的按钮进行图像、视频或摄像头实时检测。
+将 `best.pt` 和 `yolo11n-seg.pt` 导出为 ONNX 格式，提升跨平台部署兼容性。
 
-## 注意事项
-- 确保 fer2013 数据集的路径在 `models/data.yaml` 中配置正确，否则模型训练和评估可能无法正常进行。
-- 在处理视频或摄像头实时画面时，按 'q' 键可以退出处理过程，避免资源占用。
-- 训练模型可能需要较长的时间，建议使用 GPU 进行加速，以提高训练效率。
+---
 
-## 贡献与反馈
-如果你对本项目有任何建议或发现了问题，欢迎提交 Issue 或 Pull Request，我们将竭诚为你服务。
-
-## 许可证
-本项目采用 [MIT 许可证](LICENSE) 进行授权。 
-
-
+<p align="center">张允泽 · MIT License</p>

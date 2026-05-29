@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Understand-anything
+.understand-anything/
+
+# Models (large files — keep only in models/)
+*.pt
+!models/*.pt
