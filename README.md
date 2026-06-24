@@ -61,38 +61,71 @@ YOLO emotion recognition/
 
 ---
 
-## 🚀 环境准备与运行
+## 🚀 环境准备与运行（极速部署与启动指南）
 
-本系统支持两种运行环境：CPU 纯算力版和 GPU 显卡加速版，两者在后台目录相互隔离，可在 Web 界面自由点选切换。
+无论您是零基础新手还是进行课程演示的老师，只需按照以下步骤，即可在一分钟内快速完成部署与运行：
 
-### 1. 配置 CPU 环境 (.venv)
-推荐使用现有的 Python 3.12：
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
+### 第一步：安装 Python 环境（最基础）
 
-### 2. 配置 GPU CUDA 显卡加速环境 (.venv-cuda)
-若拥有 NVIDIA 独立显卡并希望使用 GPU 进行极速推理：
-1. 确保安装了 NVIDIA 显卡驱动以及相应的 CUDA Toolkit（推荐 CUDA 12.x）。
-2. 在项目根目录下，使用 PowerShell 运行我们提供的环境配置脚本（会创建并部署 `.venv-cuda` 虚拟环境，并安装 CUDA 版 PyTorch）：
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-   .\setup_cuda_env.ps1
-   ```
+本项目是基于 Python 语言开发的，若您的电脑尚未安装 Python，请按以下步骤操作：
 
-### 3. 一键启动监控中心
-有以下三种启动方式：
-- **方式 A（一键全自动启动 - 推荐零基础小白）**：直接双击运行项目根目录下的 **`一键启动服务.bat`**。该脚本会自动检测 Python 环境，如果是首次运行，会自动为您创建虚拟环境、安装依赖并自动打开浏览器启动 Web 界面！
-- **方式 B（双击即用 - 推荐已配置好环境者）**：直接在项目根目录下双击 **`launch_web_ui.exe`**。
-- **方式 C（手动脚本启动）**：在激活虚拟环境后，于终端运行：
+1. **下载 Python 3.12**：
+   - 官方下载链接：[Python 3.12.0 官方下载](https://www.python.org/downloads/release/python-3120/) (滑动到网页底部选择 **Windows installer (64-bit)** 下载)。
+2. **安装时的关键步骤 (务必注意！)**：
+   - 双击打开下载好的 Python 安装包。
+   - **在安装界面的最下方，必须勾选：`[√] Add python.exe to PATH`**（将 Python 添加到系统环境变量中，这非常关键！）。
+   - 点击 **`Install Now`** 直到安装完成即可。
+
+> 💡 **如果您忘记勾选 PATH 怎么办？**
+> 没关系！项目内置的一键启动脚本具有**智能检索功能**，即使您忘记勾选，脚本也会自动尝试在 Windows 的常见默认安装路径中寻找并调用 Python，保障服务正常运行。
+
+---
+
+### 第二步：双击一键运行（推荐：CPU 纯算力版）
+
+这是最快看到运行效果的方式，不需要您手动输入任何命令行：
+
+1. 在解压后的项目根目录下，直接双击运行 **`一键启动服务.bat`**。
+2. 启动器会自动帮您完成以下工作：
+   - 检测您电脑上的 Python 运行环境。
+   - 自动创建 Python 独立虚拟隔离环境 (`.venv`)。
+   - 自动通过**国内清华大学镜像源**高速下载并安装所有需要的依赖包（避免了因为国外服务器连接超时导致的报错）。
+   - 自动启动后台服务并**为您拉起默认浏览器**打开控制中心网页（`http://localhost:8000`）。
+
+> 💡 **以后每次启动，都只需双击运行 `一键启动服务.bat` 即可！**
+
+---
+
+### 第三步：配置 GPU/CUDA 显卡加速（可选：进阶版）
+
+如果您的电脑配备了 NVIDIA 独立显卡（如 RTX 30/40 系列），并且希望获得流畅的实时视频识别速度，可以配置 GPU 加速环境：
+
+1. **安装显卡驱动与 CUDA 工具包**：
+   - 确保您的电脑安装了最新的 NVIDIA 显卡驱动。
+   - 下载并安装 [CUDA Toolkit (推荐 12.1 或 12.8)](https://developer.nvidia.com/cuda-downloads)，一路选择默认选项安装。
+2. **双击一键部署**：
+   - 在项目根目录下，直接双击运行 **`一键配置GPU环境.bat`**。
+   - 脚本会自动创建 GPU 专属虚拟环境 (`.venv-cuda`)，并自动为您下载安装 GPU 版的 PyTorch 深度学习计算库及相关依赖。
+   - *(由于 GPU 核心库较大，需要几分钟下载时间，请保持网络畅通)*。
+3. **在网页端开启显卡加速**：
+   - 成功配置后，双击运行 `一键启动服务.bat` 打开网页。
+   - 在网页控制中心右上角切换版本环境为 `GPU 显卡 (.venv-cuda)`，启动情绪识别即可启用极速显卡推理。
+
+---
+
+### 💻 开发者调试/手动运行（备用）
+
+如果您熟悉命令行操作，可以在激活相应虚拟环境后，通过终端运行：
+
+- **CPU 版手动运行**：
   ```bash
   .venv\Scripts\python launch_web_ui.py
   ```
+- **GPU 版手动运行**：
+  ```powershell
+  .venv-cuda\Scripts\python launch_web_ui.py
+  ```
 
-启动后，系统会自动打开默认浏览器并导航至 `http://localhost:8000`，展现“YOLO v8 人脸表情识别监控中心”。
 
 ---
 
