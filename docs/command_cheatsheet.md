@@ -15,7 +15,7 @@
 无论 CPU 还是 GPU，第一步都一样：
 
 ```powershell
-cd "C:\Users\27993\Desktop\Professional course coding learning\Second semester of freshman year\Comprehensive Innovation Practice I\YOLO emotion recognition"
+cd "C:\path\to\Yolo-FaceEmotionAI-WebUI"
 ```
 
 ---

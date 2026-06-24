@@ -17,7 +17,7 @@
 先打开 PowerShell，然后进入项目目录：
 
 ```powershell
-cd "C:\Users\27993\Desktop\Professional course coding learning\Second semester of freshman year\Comprehensive Innovation Practice I\YOLO emotion recognition"
+cd "C:\path\to\Yolo-FaceEmotionAI-WebUI"
 ```
 
 ---

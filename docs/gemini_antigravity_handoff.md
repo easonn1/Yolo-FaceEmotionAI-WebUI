@@ -25,9 +25,7 @@
 
 请在这个文件夹中工作：
 
-```text
-C:\Users\27993\Desktop\Professional course coding learning\Second semester of freshman year\Comprehensive Innovation Practice I\YOLO emotion recognition
-```
+(项目根目录)
 
 ---
 
