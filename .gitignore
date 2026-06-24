@@ -33,3 +33,7 @@ assets/inputs/images/*
 !assets/inputs/images/lena.jpg
 assets/inputs/videos/*
 !assets/inputs/videos/.gitkeep
+
+# Exclude submission package
+submission_package/
+
