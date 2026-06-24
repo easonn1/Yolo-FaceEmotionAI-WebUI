@@ -1,230 +1,107 @@
-# 新手使用说明
+# 🚀 YOLO人脸表情识别与监控中心 - 新手极简运行指南
 
-这份说明默认你已经完成了环境配置，并且当前就在项目根目录下。
+本指南专为**零基础/未配置好开发环境**的新手编写。跟着以下 4 个步骤操作，你就能从零开始成功运行本项目！
 
-## 1. 先确认你现在所在的位置
+---
 
-项目根目录里应该能看到这些文件或文件夹：
+## 📌 准备工作：下载本项目代码
 
-- `main.py`
-- `launch_gui.py`
-- `assets/`
-- `models/`
-- `.venv/`
+如果你还没有把本项目代码下载到本地电脑上：
+1. 访问项目 GitHub 仓库：[easonn1/Yolo-FaceEmotionAI-WebUI](https://github.com/easonn1/Yolo-FaceEmotionAI-WebUI)
+2. 点击右上角的绿色 **`Code`** 按钮。
+3. 在下拉菜单中点击 **`Download ZIP`**。
+4. 下载完成后，在本地解压到你喜欢的目录（例如桌面或D盘）。
 
-如果这些都在，说明你就在正确位置。
+---
 
-## 2. 激活虚拟环境
+## 第一步：安装 Python 环境（最基础）
 
-在 PowerShell 中运行：
+本项目是基于 Python 语言开发的，因此你的电脑必须安装 Python。
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
+1. **下载 Python 3.12**：
+   - 推荐使用稳定的 Python 3.12 版本。
+   - 官方下载链接：[Python 3.12 官方下载](https://www.python.org/downloads/release/python-3120/) (选择底部的 Windows installer 64-bit 下载)。
+2. **安装时的关键步骤 (非常重要！)**：
+   - 双击打开下载的安装包。
+   - **在安装界面的最下方，务必勾选：`Add python.exe to PATH`（将 Python 添加到系统环境变量中）**。
+   - 然后点击 **`Install Now`** 开始安装。
+   - 安装完成后点击 Close 关闭即可。
 
-激活后，命令行前面一般会出现 `(.venv)`。
+> [!TIP]
+> **忘记勾选 PATH 怎么办？**
+> 没关系！我们编写的一键启动脚本具有**智能检索功能**，即使你忘记勾选了，脚本也会尝试在 Windows 默认安装目录里自动寻找并调用 Python，保障服务正常运行。
 
-## 3. 准备测试素材
+---
 
-把你自己的测试文件放到下面两个目录中：
+## 第二步：一键运行项目（CPU纯算力版）
 
-- 图片放到 `assets/inputs/images/`
-- 视频放到 `assets/inputs/videos/`
+如果你**没有 NVIDIA 独立显卡**，或者**想快速运行**，请直接使用此方法：
 
-例如：
+1. 打开解压后的项目文件夹，找到 **`一键启动服务.bat`**。
+2. **直接双击运行它**。
+3. 脚本会自动进行以下操作：
+   - 自动检测你电脑里的 Python。
+   - 首次运行时，在项目根目录下自动创建虚拟隔离环境 `.venv`。
+   - 自动连接**国内清华大学镜像源**，高速下载并安装所有需要的依赖包（避免了国外服务器下载慢、网络超时报错的问题）。
+   - 依赖安装完成后，自动启动后端 Web 服务器，并**在浏览器中自动打开控制中心页面**（`http://localhost:8000`）。
 
-- `assets/inputs/images/test.jpg`
-- `assets/inputs/videos/test.mp4`
+以后每次运行，都只需要**双击运行 `一键启动服务.bat`** 即可。
 
-## 4. 最推荐的使用方式：命令行运行图片
+---
 
-如果你想识别一张图片，运行：
+## 第三步：一键配置 GPU 加速环境（可选）
 
-```powershell
-python main.py --source image --input "assets/inputs/images/test.jpg"
-```
+如果你的电脑配备了 **NVIDIA 独立显卡**，并希望获得流畅的实时视频识别速度，可以配置 GPU 环境：
 
-运行完成后：
+1. **安装显卡驱动和 CUDA 工具包**：
+   - 确保你的电脑安装了最新的 NVIDIA 显卡驱动。
+   - 下载并安装 [CUDA Toolkit (推荐 12.1 或 12.8 版本)](https://developer.nvidia.com/cuda-downloads)。安装时一路点击“下一步”即可。
+2. **一键自动安装依赖**：
+   - 找到项目根目录下的 **`一键配置GPU环境.bat`**。
+   - **双击运行它**。
+   - 该脚本会自动创建 GPU 独立虚拟环境 `.venv-cuda`，并自动通过 PyTorch 官网下载安装 GPU 加速版本的神经网络计算库及相关依赖。
+   - *（注意：GPU 核心库体积约为 2GB 左右，请保证网络畅通，下载安装需要几分钟时间）*。
+3. **切换到 GPU 推理**：
+   - 成功配置后，双击运行 **`一键启动服务.bat`** 打开网页。
+   - 在网页控制中心的右上角或设备切换区，将设备从 `cpu` 切换为 `cuda` (即 GPU 显卡模式) 即可。
 
-- 程序会进行识别
-- 结果图片会默认保存到 `assets/outputs/images/`
+---
 
-例如输出文件可能是：
+## 第四步：网页控制中心（Web UI）使用指南
 
-- `assets/outputs/images/test_result.jpg`
+进入网页界面（`http://localhost:8000`）后，你可以完全脱离命令行，进行直观的可视化操作：
 
-## 5. 命令行运行视频
+### 1. 运行图片识别
+- 点击或将你的图片文件**拖拽**到左侧的“上传输入区域”。
+- 在设备选择框中，选择 `cpu` 或 `cuda`。
+- 点击 **`开始识别 (Start Run)`** 按钮。
+- 在右侧的日志终端中，能实时看到 YOLOv8 加载权重和识别的完整过程。
+- 识别完成后，下方的“结果预览区域”将直接展现出识别结果。
 
-如果你想识别一个视频，运行：
+### 2. 运行视频识别
+- 与图片步骤相同。支持上传任意 mp4/avi 格式的视频。
+- **自动转码机制**：识别完成后，后台会调用 `ffmpeg` 对视频进行 H.264 转码，保障任何主流浏览器（如 Chrome, Edge）都能在网页上流畅无黑屏播放结果视频。
 
-```powershell
-python main.py --source video --input "assets/inputs/videos/test.mp4"
-```
+### 3. 文件管理
+- **重命名**：可直接在网页修改已生成的文件名，后端会自动重构 `history.json` 历史关联数据。
+- **定位文件位置**：在输出文件列表旁，点击“文件夹”小图标，可以直接在 Windows 资源管理器中拉起文件夹并**自动高亮/选中该文件**。
 
-运行完成后：
+---
 
-- 程序会逐帧处理视频
-- 结果视频会默认保存到 `assets/outputs/videos/`
+## 🛠️ 常见问题与排查 (FAQ)
 
-例如输出文件可能是：
+### 1. 双击 `.bat` 提示 `[错误] 未检测到 Python 环境！`
+- **原因**：你的电脑还没有安装 Python，或者安装路径非常特殊。
+- **解决**：请重新下载 Python 安装包，双击并选择 `Modify` 或重新安装，**务必确认勾选 `Add python.exe to PATH`**。
 
-- `assets/outputs/videos/test_result.mp4`
+### 2. 运行 `一键配置GPU环境.bat` 时下载很慢或者报错？
+- **原因**：CUDA 加速库 PyTorch 体积过大，如果网络波动可能导致连接中断。
+- **解决**：脚本会自动进行失败回退和备用源尝试。如果依然报错，请检查您的网络是否开启了代理拦截，或者在网络较好时重新双击运行脚本，它支持断点续传。
 
-## 6. 不想弹出识别窗口时
-
-如果你只想生成结果文件，不想在识别过程中显示窗口，可以加上 `--no-display`：
-
-图片：
-
-```powershell
-python main.py --source image --input "assets/inputs/images/test.jpg" --no-display
-```
-
-视频：
-
-```powershell
-python main.py --source video --input "assets/inputs/videos/test.mp4" --no-display
-```
-
-这个选项很适合批量测试和写报告时保存结果。
-
-## 7. 如果你想自己指定输出位置
-
-可以加 `--output` 参数。
-
-例如图片：
-
-```powershell
-python main.py --source image --input "assets/inputs/images/test.jpg" --output "assets/outputs/images/my_result.jpg"
-```
-
-例如视频：
-
-```powershell
-python main.py --source video --input "assets/inputs/videos/test.mp4" --output "assets/outputs/videos/my_result.mp4"
-```
-
-## 8. 图形界面使用方法
-
-如果你不想敲命令，可以直接启动图形界面：
-
-```powershell
-python launch_gui.py
-```
-
-打开后你会看到三个按钮：
-
-- `Select Image`：选择图片进行识别
-- `Select Video`：选择视频进行识别
-- `Camera (Optional)`：摄像头功能，目前保留为扩展项
-
-使用步骤：
-
-1. 点击 `Select Image` 或 `Select Video`
-2. 在弹出的窗口中选择文件
-3. 等待识别完成
-4. 查看弹窗提示中的保存位置
-
-## 9. 识别结果怎么看
-
-输出结果中会标出：
-
-- 检测框
-- 跟踪 ID
-- 情绪标签
-
-例如：
-
-- `ID: 1 - Happy`
-- `ID: 2 - Neutral`
-
-当前模型使用的情绪类别包括：
-
-- `Anger`
-- `Contempt`
-- `Disgust`
-- `Fear`
-- `Happy`
-- `Neutral`
-- `Sad`
-- `Surprise`
-
-## 10. 结果文件在哪
-
-默认结果都保存在这里：
-
-- 图片结果：`assets/outputs/images/`
-- 视频结果：`assets/outputs/videos/`
-- 报告截图：`assets/outputs/screenshots/`
-
-如果你后面要写课程报告，建议把需要的运行截图也统一放到 `assets/outputs/screenshots/`。
-
-## 11. 常见问题
-
-### 1. 提示找不到输入文件
-
-检查：
-
-- 文件路径是否写对
-- 文件是否真的放在 `assets/inputs/images/` 或 `assets/inputs/videos/` 下
-- 文件名后缀是否正确
-
-### 2. 程序运行很慢
-
-这是正常现象，尤其是视频处理。
-
-影响速度的常见原因：
-
-- 视频分辨率较高
-- 视频时长较长
-- 电脑没有使用更强的 GPU
-
-建议先用短视频测试。
-
-### 3. 运行后没有识别到人脸
-
-可能原因：
-
-- 图片里的人脸太小
-- 角度太偏
-- 光线太暗
-- 表情不明显
-
-建议先用正脸、清晰、光线好的图片测试。
-
-### 4. 输出成功但结果不理想
-
-这是正常的。
-
-因为当前阶段是“先跑通现成项目”，目标是先完成演示、测试和报告，不是重新训练自己的高精度模型。
-
-## 12. 新手最建议的操作顺序
-
-第一次使用建议按这个顺序来：
-
-1. 激活虚拟环境
-2. 先运行一张图片
-3. 查看 `assets/outputs/images/` 中是否生成结果
-4. 再运行一个短视频
-5. 查看 `assets/outputs/videos/` 中是否生成结果
-6. 最后再尝试 GUI
-
-## 13. 你现在可以直接复制使用的命令
-
-图片识别：
-
-```powershell
-python main.py --source image --input "assets/inputs/images/lena.jpg" --no-display
-```
-
-视频识别：
-
-```powershell
-python main.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
-```
-
-启动 GUI：
-
-```powershell
-python launch_gui.py
-```
+### 3. 视频识别完成后在网页播放黑屏/没有画面？
+- **原因**：浏览器一般只支持 H.264/AVC 编码的视频，而 OpenCV 默认导出的视频编码浏览器无法直接解码。
+- **解决**：本项目在后台内置了自动转码功能。请确保你电脑的环境里已经安装或集成了 `ffmpeg`（通常在运行脚本时已自带，如遇特殊系统提示缺少 ffmpeg，可通过 `一键启动服务.bat` 内置的 EXE 启动器运行，它整合了运行环境）。
+
+### 4. 端口被占用无法打开网页？
+- **原因**：默认的 `8000` 端口被你电脑里的其他软件占用了。
+- **解决**：使用文本编辑器打开项目根目录下的 `launch_web_ui.py`，找到里面的 `port=8000`，修改为其他数字（例如 `8080`），然后重新双击启动。

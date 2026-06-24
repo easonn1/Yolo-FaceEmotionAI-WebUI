@@ -1,172 +1,81 @@
-# 快速使用说明
+# ⚡ 快速使用说明 (Quick Start)
 
-这是一份面向新手的最短使用说明。
-
-如果你只想完成下面这件事：
-
-- 对图片进行情绪识别
-- 对视频进行情绪识别
-- 保存识别结果
-
-那么直接照着这份做就够了。
+本文档面向对命令行有一定了解、希望快速调试或二次开发的用户。
 
 ---
 
-## 一、先做什么
+## 🚀 一键极速启动 (推荐)
 
-先打开 PowerShell，然后进入项目目录：
+项目内置了双击即用的 Windows 批处理启动脚本：
 
-```powershell
-cd "C:\path\to\Yolo-FaceEmotionAI-WebUI"
-```
-
----
-
-## 二、最快的运行方式
-
-### 1. GPU 版图片识别
-
-```powershell
-.\.venv-cuda\Scripts\python main_cuda.py --source image --input "assets/inputs/images/lena.jpg" --no-display
-```
-
-### 2. GPU 版视频识别
-
-```powershell
-.\.venv-cuda\Scripts\python main_cuda.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
-```
-
-如果你只是想更快看到效果，优先用这两条。
+1. **CPU 纯算力运行**：直接双击项目根目录下的 **`一键启动服务.bat`**。
+2. **GPU CUDA 加速配置**：如果你有 NVIDIA 显卡，直接双击 **`一键配置GPU环境.bat`** 进行一键环境创建。配置完成后即可双击 `一键启动服务.bat` 并在网页控制台切换 `cuda` 运行。
 
 ---
 
-## 三、运行完成后去哪里看结果
+## 💻 命令行手动启动与调试
 
-识别后的结果会自动保存。
+如果你希望通过终端激活虚拟环境并手动执行脚本：
 
-保存位置如下：
+### 1. 激活虚拟环境
 
-- 图片结果：`assets/outputs/images/`
-- 视频结果：`assets/outputs/videos/`
+- **CPU 环境 (.venv)**：
+  ```powershell
+  .venv\Scripts\Activate.ps1
+  ```
+- **GPU 环境 (.venv-cuda)**：
+  ```powershell
+  .venv-cuda\Scripts\Activate.ps1
+  ```
+
+### 2. 手动启动 Web 交互监控中心
+
+在激活环境（推荐 CPU 环境 `.venv`）下，运行启动入口：
+```powershell
+python launch_web_ui.py
+```
+启动后服务将在本地 `http://localhost:8000` 监听。
+
+### 3. 命令行独立推理测试
+
+如果你不想通过网页，可以直接使用命令行执行单张图片或单个视频的识别。
+
+#### 📷 图片识别测试
+- **CPU 模式**：
+  ```powershell
+  .venv\Scripts\python main.py --source image --input "assets/inputs/images/lena.jpg" --no-display
+  ```
+- **GPU (CUDA) 模式**：
+  ```powershell
+  .venv-cuda\Scripts\python main_cuda.py --source image --input "assets/inputs/images/lena.jpg" --no-display
+  ```
+
+#### 🎥 视频识别与多目标跟踪测试
+- **CPU 模式**：
+  ```powershell
+  .venv\Scripts\python main.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
+  ```
+- **GPU (CUDA) 模式**：
+  ```powershell
+  .venv-cuda\Scripts\python main_cuda.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
+  ```
 
 ---
 
-## 四、如果你想换成自己的素材
+## 📂 素材与结果保存路径约定
 
-### 图片
-
-把你的图片放到：
-
-```text
-assets/inputs/images/
-```
-
-例如：
-
-```text
-assets/inputs/images/test.jpg
-```
-
-然后运行：
-
-```powershell
-.\.venv-cuda\Scripts\python main_cuda.py --source image --input "assets/inputs/images/test.jpg" --no-display
-```
-
-### 视频
-
-把你的视频放到：
-
-```text
-assets/inputs/videos/
-```
-
-例如：
-
-```text
-assets/inputs/videos/test.mp4
-```
-
-然后运行：
-
-```powershell
-.\.venv-cuda\Scripts\python main_cuda.py --source video --input "assets/inputs/videos/test.mp4" --no-display
-```
+- **输入素材存放**：
+  - 待识别的图片：`assets/inputs/images/`
+  - 待识别的视频：`assets/inputs/videos/`
+- **输出结果保存**：
+  - 识别完成的图片：`assets/outputs/images/` (自增命名或覆盖)
+  - 识别及转码完成的视频：`assets/outputs/videos/` (自增命名或覆盖)
+  - 报告截图：`assets/outputs/screenshots/`
 
 ---
 
-## 五、如果你不想用 GPU
+## 🖥️ 运行设备状态确认
 
-可以改用 CPU 版：
-
-图片：
-
-```powershell
-.\.venv\Scripts\python main.py --source image --input "assets/inputs/images/lena.jpg" --no-display
-```
-
-视频：
-
-```powershell
-.\.venv\Scripts\python main.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
-```
-
----
-
-## 六、如果你想点按钮操作
-
-### GPU 版图形界面
-
-```powershell
-.\.venv-cuda\Scripts\python launch_gui_cuda.py
-```
-
-### CPU 版图形界面
-
-```powershell
-.\.venv\Scripts\python launch_gui.py
-```
-
-打开后：
-
-1. 点击 `Select Image` 或 `Select Video`
-2. 选择文件
-3. 等待处理完成
-4. 去输出目录查看结果
-
----
-
-## 七、怎么判断现在是不是在用显卡
-
-如果命令输出中出现：
-
-```text
-Device: cuda
-```
-
-说明当前正在使用 GPU。
-
-如果出现：
-
-```text
-Device: cpu
-```
-
-说明当前正在使用 CPU。
-
----
-
-## 八、最短结论
-
-如果你只记一套命令，就记这两条：
-
-```powershell
-.\.venv-cuda\Scripts\python main_cuda.py --source image --input "assets/inputs/images/lena.jpg" --no-display
-.\.venv-cuda\Scripts\python main_cuda.py --source video --input "assets/inputs/videos/face_walk.mp4" --no-display
-```
-
-它们会：
-
-- 使用显卡
-- 自动完成识别
-- 自动保存结果
+在执行推理时，控制台输出将标明当前所采用的硬件加速设备：
+- `Device: cuda`：代表当前正在调用 NVIDIA GPU 进行加速推理。
+- `Device: cpu`：代表当前正在调用 CPU 进行纯算力推理。
