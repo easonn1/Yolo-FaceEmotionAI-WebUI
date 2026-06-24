@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO 人脸表情识别监控中心</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icon Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- TOP HEADER -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-brain-circuit icon-glowing"></i>
+                <div class="logo-text">
+                    <h1>YOLO v8</h1>
+                    <p>人脸表情识别监控中心</p>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <div class="device-selector-wrapper">
+                    <span class="control-label"><i class="fa-solid fa-microchip"></i> 运行版本环境</span>
+                    <div class="toggle-buttons">
+                        <button id="btn-cpu" class="toggle-btn active" data-device="cpu">
+                            <i class="fa-solid fa-server"></i> CPU 版本 (.venv)
+                        </button>
+                        <button id="btn-gpu" class="toggle-btn" data-device="cuda">
+                            <i class="fa-solid fa-bolt"></i> GPU 显卡 (.venv-cuda)
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="status-badge" class="status-badge idle">
+                    <span class="dot"></span>
+                    <span class="text">系统空闲</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: FILE EXPLORER & UPLOAD -->
+            <section class="dashboard-card col-left">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-folder-open"></i> 文件控制中心</h2>
+                </div>
+                
+                <div class="card-body scrollable">
+                    <!-- Upload Dropzone -->
+                    <div class="upload-zone" id="drop-zone">
+                        <input type="file" id="file-input" accept="image/*,video/*" style="display: none;">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                        <p class="main-text">拖拽文件到此处 或 <span>点击上传</span></p>
+                        <p class="sub-text">支持图片 (jpg/png) / 视频 (mp4)</p>
+                    </div>
+
+                    <!-- File Trees -->
+                    <div class="file-sections">
+                        <div class="file-category">
+                            <h3><i class="fa-solid fa-image"></i> 待识别图片 (assets/inputs/images)</h3>
+                            <div class="action-row">
+                                <button class="small-btn" onclick="openFolder('input_images')">
+                                    <i class="fa-regular fa-folder-open"></i> 打开图片输入文件夹
+                                </button>
+                            </div>
+                            <ul id="input-images-list" class="file-list">
+                                <li class="empty-list">正在加载图片列表...</li>
+                            </ul>
+                        </div>
+
+                        <div class="file-category">
+                            <h3><i class="fa-solid fa-video"></i> 待识别视频 (assets/inputs/videos)</h3>
+                            <div class="action-row">
+                                <button class="small-btn" onclick="openFolder('input_videos')">
+                                    <i class="fa-regular fa-folder-open"></i> 打开视频输入文件夹
+                                </button>
+                            </div>
+                            <ul id="input-videos-list" class="file-list">
+                                <li class="empty-list">正在加载视频列表...</li>
+                            </ul>
+                        </div>
+
+                        <div class="file-category">
+                            <h3><i class="fa-solid fa-images"></i> 已输出图片 (assets/outputs/images)</h3>
+                            <div class="action-row">
+                                <button class="small-btn" onclick="openFolder('output_images')">
+                                    <i class="fa-regular fa-folder-open"></i> 打开图片输出文件夹
+                                </button>
+                            </div>
+                            <ul id="output-images-list" class="file-list">
+                                <li class="empty-list">空</li>
+                            </ul>
+                        </div>
+
+                        <div class="file-category">
+                            <h3><i class="fa-solid fa-film"></i> 已输出视频 (assets/outputs/videos)</h3>
+                            <div class="action-row">
+                                <button class="small-btn" onclick="openFolder('output_videos')">
+                                    <i class="fa-regular fa-folder-open"></i> 打开视频输出文件夹
+                                </button>
+                            </div>
+                            <ul id="output-videos-list" class="file-list">
+                                <li class="empty-list">空</li>
+                            </ul>
+                        </div>
+
+                        <div class="file-category">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> 历史运行记录 (assets/history.json)</h3>
+                            <div class="action-row">
+                                <button class="small-btn clear-history-btn" onclick="clearAllHistory()">
+                                    <i class="fa-solid fa-trash-can"></i> 清除所有历史记录
+                                </button>
+                            </div>
+                            <ul id="history-list" class="history-list">
+                                <li class="empty-list">正在加载历史记录...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MIDDLE COLUMN: HARDWARE & MEDIA PREVIEW -->
+            <section class="col-middle">
+                
+                <!-- System Hardware Monitor -->
+                <div class="dashboard-card system-monitor-card">
+                    <div class="card-header system-monitor-header">
+                        <h2><i class="fa-solid fa-chart-line"></i> 系统资源实时占用监控</h2>
+                        <div class="device-labels">
+                            <span id="cpu-name-display" class="device-model-label"><i class="fa-solid fa-microchip"></i> CPU: 检测中...</span>
+                            <span id="gpu-name-display" class="device-model-label"><i class="fa-solid fa-bolt"></i> GPU: 检测中...</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="metrics-grid">
+                            <!-- CPU -->
+                            <div class="metric-circle-box">
+                                <div class="metric-radial-container">
+                                    <svg class="progress-ring" width="70" height="70">
+                                        <circle class="ring-bg" stroke="#1d2636" stroke-width="5" fill="transparent" r="30" cx="35" cy="35"/>
+                                        <circle id="cpu-ring" class="ring-val" stroke="var(--cpu-color)" stroke-width="5" stroke-dasharray="188.5" stroke-dashoffset="188.5" fill="transparent" r="30" cx="35" cy="35"/>
+                                    </svg>
+                                    <span id="cpu-text" class="metric-number">0%</span>
+                                </div>
+                                <div class="metric-info-and-chart">
+                                    <span class="metric-title">CPU 占用率</span>
+                                    <canvas id="cpu-chart" class="metric-mini-chart" width="160" height="40"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- RAM -->
+                            <div class="metric-circle-box">
+                                <div class="metric-radial-container">
+                                    <svg class="progress-ring" width="70" height="70">
+                                        <circle class="ring-bg" stroke="#1d2636" stroke-width="5" fill="transparent" r="30" cx="35" cy="35"/>
+                                        <circle id="ram-ring" class="ring-val" stroke="var(--ram-color)" stroke-width="5" stroke-dasharray="188.5" stroke-dashoffset="188.5" fill="transparent" r="30" cx="35" cy="35"/>
+                                    </svg>
+                                    <span id="ram-text" class="metric-number">0%</span>
+                                </div>
+                                <div class="metric-info-and-chart">
+                                    <span class="metric-title">系统内存</span>
+                                    <canvas id="ram-chart" class="metric-mini-chart" width="160" height="40"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- GPU -->
+                            <div class="metric-circle-box">
+                                <div class="metric-radial-container">
+                                    <svg class="progress-ring" width="70" height="70">
+                                        <circle class="ring-bg" stroke="#1d2636" stroke-width="5" fill="transparent" r="30" cx="35" cy="35"/>
+                                        <circle id="gpu-ring" class="ring-val" stroke="var(--gpu-color)" stroke-width="5" stroke-dasharray="188.5" stroke-dashoffset="188.5" fill="transparent" r="30" cx="35" cy="35"/>
+                                    </svg>
+                                    <span id="gpu-text" class="metric-number">0%</span>
+                                </div>
+                                <div class="metric-info-and-chart">
+                                    <span class="metric-title">GPU 占用率</span>
+                                    <canvas id="gpu-chart" class="metric-mini-chart" width="160" height="40"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- VRAM -->
+                            <div class="metric-circle-box">
+                                <div class="metric-radial-container">
+                                    <svg class="progress-ring" width="70" height="70">
+                                        <circle class="ring-bg" stroke="#1d2636" stroke-width="5" fill="transparent" r="30" cx="35" cy="35"/>
+                                        <circle id="vram-ring" class="ring-val" stroke="var(--vram-color)" stroke-width="5" stroke-dasharray="188.5" stroke-dashoffset="188.5" fill="transparent" r="30" cx="35" cy="35"/>
+                                    </svg>
+                                    <span id="vram-text" class="metric-number">0MB</span>
+                                </div>
+                                <div class="metric-info-and-chart">
+                                    <span class="metric-title">显存占用</span>
+                                    <canvas id="vram-chart" class="metric-mini-chart" width="160" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Preview Card -->
+                <div class="dashboard-card preview-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-tv"></i> 媒体预览窗口</h2>
+                        <div class="tabs">
+                            <button id="tab-input" class="tab-btn active" onclick="switchPreviewTab('input')">输入素材</button>
+                            <button id="tab-output" class="tab-btn" onclick="switchPreviewTab('output')">检测结果</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body preview-area">
+                        <!-- Preview Panel: Input -->
+                        <div id="preview-input-container" class="preview-container">
+                            <div class="no-preview-placeholder">
+                                <i class="fa-regular fa-image"></i>
+                                <p>请在左侧点选或上传输入素材以进行预览</p>
+                            </div>
+                            <img id="preview-input-image" class="preview-media hidden" src="" alt="输入图片预览">
+                            <video id="preview-input-video" class="preview-media hidden" controls src=""></video>
+                        </div>
+
+                        <!-- Preview Panel: Output -->
+                        <div id="preview-output-container" class="preview-container hidden">
+                            <div class="no-preview-placeholder">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <p>尚未启动检测。请点击右侧"启动检测"以处理文件</p>
+                            </div>
+                            <img id="preview-output-image" class="preview-media hidden" src="" alt="结果图片预览">
+                            <video id="preview-output-video" class="preview-media hidden" controls src=""></video>
+                            
+                            <div id="output-actions-overlay" class="output-actions hidden">
+                                <button class="action-btn" onclick="openSelectedOutputFile()">
+                                    <i class="fa-solid fa-play"></i> 用系统播放器/看图工具打开
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN: CONTROL PANEL & TERMINAL -->
+            <section class="dashboard-card col-right">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-terminal"></i> 运行控制与终端日志</h2>
+                </div>
+                
+                <div class="card-body control-panel-body">
+                    <!-- Target File Info -->
+                    <div class="selection-status-box">
+                        <div class="status-row">
+                            <span class="label">选定文件:</span>
+                            <span id="selected-file-label" class="val text-highlight">无</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="label">文件类型:</span>
+                            <span id="selected-type-label" class="val">无</span>
+                        </div>
+                    </div>
+
+                    <!-- Trigger Actions -->
+                    <div class="execution-actions">
+                        <button id="btn-run" class="run-btn" disabled>
+                            <i class="fa-solid fa-play"></i> 启动情绪识别检测
+                        </button>
+                        <button id="btn-stop" class="stop-btn hidden">
+                            <i class="fa-solid fa-stop"></i> 停止检测子进程
+                        </button>
+                    </div>
+
+                    <!-- Run Progress Section -->
+                    <div class="progress-section">
+                        <div class="progress-info">
+                            <span id="progress-status-text">系统就绪</span>
+                            <span id="progress-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="run-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Console Log -->
+                    <div class="terminal-container">
+                        <div class="terminal-header">
+                            <div class="dots">
+                                <span class="red"></span>
+                                <span class="yellow"></span>
+                                <span class="green"></span>
+                            </div>
+                            <span class="terminal-title">yolo_execution_stdout.log</span>
+                            <button class="clear-log-btn" onclick="clearLocalLogs()"><i class="fa-solid fa-trash-can"></i> 清除</button>
+                        </div>
+                        <div id="terminal-body" class="terminal-body">
+                            <div class="log-line system-msg">[SYSTEM] YOLO 情绪识别网页端控制中心已连接。</div>
+                            <div class="log-line system-msg">[SYSTEM] 请选择输入文件并点击 [启动情绪识别检测] 开始执行推理。</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <!-- CONFLICT MODAL -->
+    <div id="conflict-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-triangle-exclamation icon-warning"></i> 检测到结果文件已存在</h3>
+            </div>
+            <div class="modal-body">
+                <p>文件 <span id="conflict-filename" class="text-highlight"></span> 已有识别输出结果。您希望如何处理？</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirm-overwrite" class="modal-btn danger">
+                    <i class="fa-solid fa-trash-can"></i> 覆盖原文件
+                </button>
+                <button id="btn-confirm-new" class="modal-btn primary">
+                    <i class="fa-solid fa-arrow-up-9-1"></i> 生成新文件
+                </button>
+                <button id="btn-confirm-cancel" class="modal-btn secondary">
+                    <i class="fa-solid fa-xmark"></i> 取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

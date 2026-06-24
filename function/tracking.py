@@ -1,43 +1,79 @@
-import cv2
-from deep_sort_realtime.deepsort_tracker import DeepSort
+from __future__ import annotations
 
-def track_objects(frame, detections, colors, tracker):
-    """
-    使用 DeepSORT 进行多目标跟踪并绘制结果
-    :param frame: 当前帧图像
-    :param detections: 检测结果列表，每个元素为 (bounding_box, confidence, class_label)
-    :param colors: 颜色列表
-    :param tracker: DeepSORT 跟踪器
-    :return: 处理后的帧图像
-    """
-    tracks = tracker.update_tracks(detections, frame=frame)
+from pathlib import Path
+
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+
+FONT_CANDIDATES = (
+    Path("C:/Windows/Fonts/msyh.ttc"),
+    Path("C:/Windows/Fonts/msyhbd.ttc"),
+    Path("C:/Windows/Fonts/simhei.ttf"),
+    Path("C:/Windows/Fonts/simsun.ttc"),
+)
+
+
+def _load_font(font_size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    for font_path in FONT_CANDIDATES:
+        if font_path.exists():
+            return ImageFont.truetype(str(font_path), font_size)
+    return ImageFont.load_default()
+
+
+def _draw_label(frame, text: str, anchor_x: int, anchor_y: int, accent_color):
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pil_image = Image.fromarray(rgb_frame)
+    draw = ImageDraw.Draw(pil_image, "RGBA")
+
+    font = _load_font(24)
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    padding_x = 12
+    padding_y = 8
+    label_x1 = max(0, anchor_x)
+    label_y2 = max(text_height + padding_y * 2, anchor_y)
+    label_y1 = max(0, label_y2 - (text_height + padding_y * 2))
+    label_x2 = min(frame.shape[1], label_x1 + text_width + padding_x * 2)
+
+    # Use a high-contrast dark panel with a colored border so the text stays readable.
+    draw.rounded_rectangle(
+        (label_x1, label_y1, label_x2, label_y2),
+        radius=8,
+        fill=(18, 18, 18, 220),
+        outline=(int(accent_color[2]), int(accent_color[1]), int(accent_color[0]), 255),
+        width=2,
+    )
+
+    text_x = label_x1 + padding_x
+    text_y = label_y1 + padding_y - 1
+    draw.text((text_x + 1, text_y + 1), text, font=font, fill=(0, 0, 0, 255))
+    draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255, 255))
+
+    return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+
+
+def draw_tracks(frame, tracks, colors):
+    """Draw confirmed DeepSORT tracks on a frame."""
     person_count = 0
+
     for track in tracks:
         if not track.is_confirmed():
             continue
-        track_id = track.track_id
-        bbox = track.to_ltrb()
-        x1, y1, x2, y2 = map(int, bbox)
-        emotion_label = track.det_class
 
-        # 选择颜色
+        track_id = track.track_id
+        x1, y1, x2, y2 = map(int, track.to_ltrb())
+        emotion_label = track.det_class or "未知"
         color = colors[person_count % len(colors)]
         person_count += 1
 
-        # 绘制边界框
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
 
-        # 计算标签的大小
-        label_text = f"ID: {track_id} - {emotion_label}"
-        # 减小字体大小
-        font_scale = 0.6
-        font_thickness = 1
-        (label_width, label_height), _ = cv2.getTextSize(label_text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
-
-        # 绘制标签背景
-        cv2.rectangle(frame, (x1, y1), (x1 + label_width, y1 + label_height), color, -1)
-
-        # 绘制标签文本，使用调整后的字体大小和厚度
-        cv2.putText(frame, label_text, (x1, y1 + label_height), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), font_thickness)
+        label_text = f"ID: {track_id}  {emotion_label}"
+        label_anchor_y = y1 - 6 if y1 > 48 else y1 + 42
+        frame = _draw_label(frame, label_text, x1, label_anchor_y, color)
 
     return frame
