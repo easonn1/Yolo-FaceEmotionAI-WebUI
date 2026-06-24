@@ -53,7 +53,7 @@ def _finalize_video(silent_video_path: Path, final_output_path: str, keep_audio:
             "-shortest",
             final_output_path,
         ]
-        print(f"[FFMPEG] Merging audio and encoding to H.264...", flush=True)
+        print("[FFMPEG] Merging audio and encoding to H.264...", flush=True)
     else:
         command = [
             ffmpeg_path,
@@ -66,7 +66,7 @@ def _finalize_video(silent_video_path: Path, final_output_path: str, keep_audio:
             "yuv420p",
             final_output_path,
         ]
-        print(f"[FFMPEG] Encoding to H.264...", flush=True)
+        print("[FFMPEG] Encoding to H.264...", flush=True)
 
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode == 0:
@@ -94,7 +94,7 @@ def process_video(
     source_fps = cap.get(cv2.CAP_PROP_FPS)
 
     try:
-        tracker = DeepSort(max_age=5, n_init=2)
+        tracker = DeepSort(max_age=5, n_init=1)
         colors = get_colors(10)
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -114,15 +114,23 @@ def process_video(
                 print(f"[PROGRESS] {progress}", flush=True)
 
             detections = process_frame(frame, seg_model, emotion_model, device=device)
-            tracks = tracker.update_tracks(detections, frame=frame)
+            raw_detections = [(bbox, score, emotion_label) for bbox, score, emotion_label, _ in detections]
+            others = [metadata for _, _, _, metadata in detections]
+            tracks = tracker.update_tracks(raw_detections, frame=frame, others=others)
 
             frame_id_emotions = []
             for track in tracks:
                 if track.is_confirmed():
-                    frame_id_emotions.append((track.track_id, track.det_class or "Unknown"))
+                    supplementary = track.get_det_supplementary() or {}
+                    frame_id_emotions.append(
+                        (
+                            track.track_id,
+                            supplementary.get("emotion_label") or track.get_det_class() or "Unknown",
+                        )
+                    )
             all_id_emotions.append(frame_id_emotions)
 
-            processed_frame = draw_tracks(frame.copy(), tracks, colors)
+            processed_frame = draw_tracks(frame.copy(), tracks, colors, detections=detections)
 
             if silent_output_path and writer is None:
                 writer = _create_video_writer(silent_output_path, processed_frame, source_fps)

@@ -39,7 +39,6 @@ def _draw_label(frame, text: str, anchor_x: int, anchor_y: int, accent_color):
     label_y1 = max(0, label_y2 - (text_height + padding_y * 2))
     label_x2 = min(frame.shape[1], label_x1 + text_width + padding_x * 2)
 
-    # Use a high-contrast dark panel with a colored border so the text stays readable.
     draw.rounded_rectangle(
         (label_x1, label_y1, label_x2, label_y2),
         radius=8,
@@ -56,24 +55,59 @@ def _draw_label(frame, text: str, anchor_x: int, anchor_y: int, accent_color):
     return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
 
 
-def draw_tracks(frame, tracks, colors):
-    """Draw confirmed DeepSORT tracks on a frame."""
+def _draw_single_box(frame, x1, y1, x2, y2, label_text, color):
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
+    label_anchor_y = y1 - 6 if y1 > 48 else y1 + 42
+    return _draw_label(frame, label_text, x1, label_anchor_y, color)
+
+
+def draw_notice(frame, text: str, position: str = "top_left"):
+    notice_color = (0, 140, 255)
+    margin = 12
+
+    if position == "top_left":
+        anchor_x = margin
+        anchor_y = 44
+    elif position == "bottom_left":
+        anchor_x = margin
+        anchor_y = frame.shape[0] - margin
+    else:
+        anchor_x = margin
+        anchor_y = 44
+
+    return _draw_label(frame, text, anchor_x, anchor_y, notice_color)
+
+
+def draw_tracks(frame, tracks, colors, detections=None):
+    """Draw DeepSORT tracks when available, otherwise fall back to raw detections."""
     person_count = 0
+    drew_confirmed_track = False
 
     for track in tracks:
         if not track.is_confirmed():
             continue
 
+        drew_confirmed_track = True
         track_id = track.track_id
         x1, y1, x2, y2 = map(int, track.to_ltrb())
-        emotion_label = track.det_class or "未知"
+        supplementary = track.get_det_supplementary() or {}
+        emotion_label = supplementary.get("emotion_label") or track.get_det_class() or "Unknown"
         color = colors[person_count % len(colors)]
         person_count += 1
 
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 3)
-
         label_text = f"ID: {track_id}  {emotion_label}"
-        label_anchor_y = y1 - 6 if y1 > 48 else y1 + 42
-        frame = _draw_label(frame, label_text, x1, label_anchor_y, color)
+        frame = _draw_single_box(frame, x1, y1, x2, y2, label_text, color)
+
+    if drew_confirmed_track or not detections:
+        return frame
+
+    for index, detection in enumerate(detections):
+        bbox, _, emotion_label, *_ = detection
+        x1, y1, width, height = bbox
+        x2 = x1 + width
+        y2 = y1 + height
+        color = colors[index % len(colors)]
+        label_text = f"{emotion_label}"
+        frame = _draw_single_box(frame, x1, y1, x2, y2, label_text, color)
 
     return frame

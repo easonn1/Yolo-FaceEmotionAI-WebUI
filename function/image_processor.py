@@ -7,7 +7,7 @@ from .color import get_colors
 from .frame_processor import process_frame
 from .image import resize_image
 from .io_utils import ensure_parent_dir
-from .tracking import draw_tracks
+from .tracking import draw_notice, draw_tracks
 
 
 def process_image(file_path, seg_model, emotion_model, display=True, output_path=None, device="cpu"):
@@ -18,20 +18,35 @@ def process_image(file_path, seg_model, emotion_model, display=True, output_path
             raise ValueError(f"Unable to read image file: {file_path}")
 
         print("[PROGRESS] 30", flush=True)
-        tracker = DeepSort(max_age=5, n_init=2)
+        tracker = DeepSort(max_age=5, n_init=1)
         colors = get_colors(10)
         detections = process_frame(image, seg_model, emotion_model, device=device)
-        
+        raw_detections = [(bbox, score, emotion_label) for bbox, score, emotion_label, _ in detections]
+        others = [metadata for _, _, _, metadata in detections]
+
         print("[PROGRESS] 60", flush=True)
-        tracks = tracker.update_tracks(detections, frame=image)
+        tracks = tracker.update_tracks(raw_detections, frame=image, others=others)
 
         print("[PROGRESS] 80", flush=True)
         id_emotions = []
         for track in tracks:
             if track.is_confirmed():
-                id_emotions.append((track.track_id, track.det_class or "Unknown"))
+                supplementary = track.get_det_supplementary() or {}
+                id_emotions.append(
+                    (
+                        track.track_id,
+                        supplementary.get("emotion_label") or track.get_det_class() or "Unknown",
+                    )
+                )
 
-        processed_image = draw_tracks(image.copy(), tracks, colors)
+        if not id_emotions:
+            for index, detection in enumerate(detections, start=1):
+                id_emotions.append((f"det-{index}", detection[2]))
+
+        processed_image = draw_tracks(image.copy(), tracks, colors, detections=detections)
+        if not detections:
+            print("No face detected.", flush=True)
+            processed_image = draw_notice(processed_image, "No face detected.", position="top_left")
         resized_image = resize_image(processed_image)
 
         if output_path:
