@@ -23,6 +23,10 @@
             </div>
             
             <div class="header-controls">
+                <button id="btn-guide" class="guide-btn">
+                    <i class="fa-solid fa-circle-question"></i> 新手指南
+                </button>
+
                 <div class="device-selector-wrapper">
                     <span class="control-label"><i class="fa-solid fa-microchip"></i> 运行版本环境</span>
                     <div class="toggle-buttons">
@@ -323,6 +327,27 @@
                 </button>
                 <button id="btn-confirm-cancel" class="modal-btn secondary">
                     <i class="fa-solid fa-xmark"></i> 取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BEGINNER GUIDE MODAL -->
+    <div id="guide-modal" class="modal-overlay">
+        <div class="modal-content guide-modal-content">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fa-solid fa-circle-question" style="color: var(--accent-cyan);"></i> 新手使用与配置指南</h3>
+                <button class="close-modal-btn" onclick="closeGuideModal()">&times;</button>
+            </div>
+            <div class="modal-body guide-modal-body" id="guide-content-area">
+                <!-- 动态渲染内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" onclick="openGuideExternally()">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 在外部编辑器中打开
+                </button>
+                <button class="modal-btn secondary" onclick="closeGuideModal()">
+                    <i class="fa-solid fa-xmark"></i> 关闭
                 </button>
             </div>
         </div>

@@ -925,3 +925,98 @@ async function openSelectedOutputFile() {
         logError(`[SYSTEM] 无法打开文件: ${e.message}`);
     }
 }
+
+// ==========================================
+// BEGINNER GUIDE MODAL CONTROLS
+// ==========================================
+async function showGuideModal() {
+    const modal = document.getElementById("guide-modal");
+    const contentArea = document.getElementById("guide-content-area");
+    contentArea.innerHTML = `<div style="text-align: center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-cyan);"></i><p style="margin-top: 10px; color: var(--text-secondary);">正在加载新手指南...</p></div>`;
+    modal.classList.add("active");
+
+    try {
+        const res = await fetch("/api/beginner_guide");
+        if (!res.ok) throw new Error("获取新手指南失败");
+        const data = await res.json();
+        contentArea.innerHTML = parseMarkdownToHtml(data.content);
+    } catch (e) {
+        contentArea.innerHTML = `<div style="color: var(--accent-red); text-align: center; padding: 20px;"><i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem;"></i><p style="margin-top: 10px;">${e.message}</p></div>`;
+    }
+}
+
+function closeGuideModal() {
+    const modal = document.getElementById("guide-modal");
+    modal.classList.remove("active");
+}
+
+async function openGuideExternally() {
+    try {
+        const res = await fetch("/api/open_file", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ file: "docs/beginner_guide.md" })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        closeGuideModal();
+        logSystem("[SYSTEM] 已成功在系统外部编辑器中拉起 docs/beginner_guide.md。");
+    } catch (e) {
+        logError(`[SYSTEM] 无法在外部打开文件: ${e.message}`);
+    }
+}
+
+function parseMarkdownToHtml(md) {
+    if (!md) return "";
+    let html = md;
+    
+    // Escape HTML to prevent XSS
+    html = html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+        
+    // Headers
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2><i class="fa-solid fa-chevron-right" style="color: var(--accent-cyan); font-size: 0.8rem; margin-right: 6px;"></i> $1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Inline code
+    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    // Links (markdown style [text](url))
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--accent-cyan); text-decoration: none; border-bottom: 1px dashed var(--accent-cyan); padding-bottom: 1px;">$1</a>');
+    
+    // Fenced Code Blocks (```)
+    html = html.replace(/```([\s\S]*?)```/g, function(match, code) {
+        return '<pre><code>' + code.trim() + '</code></pre>';
+    });
+
+    // GitHub style Alerts
+    html = html.replace(/>\s*\[!(TIP|NOTE|IMPORTANT|WARNING|CAUTION)\]\s*\n>\s*([\s\S]*?)(?=\n\n|\n[^\s>])/gi, function(match, type, content) {
+        let cleanContent = content.replace(/^>\s*/gm, '').trim();
+        let icon = "fa-circle-info";
+        if (type === "TIP") icon = "fa-lightbulb";
+        if (type === "WARNING") icon = "fa-triangle-exclamation";
+        return `<div class="alert-box alert-${type}"><i class="fa-solid ${icon}"></i> <strong>${type}:</strong> ${cleanContent}</div>`;
+    });
+    
+    // Unordered Lists
+    html = html.replace(/^\s*-\s+(.*)$/gim, '<li>$1</li>');
+    
+    // Handle remaining newlines for paragraph spacing
+    html = html.replace(/\n\n/g, '<br><br>');
+    
+    return html;
+}
+
+// Register click event listener on page load
+document.addEventListener("DOMContentLoaded", () => {
+    const btnGuide = document.getElementById("btn-guide");
+    if (btnGuide) {
+        btnGuide.addEventListener("click", showGuideModal);
+    }
+});
+

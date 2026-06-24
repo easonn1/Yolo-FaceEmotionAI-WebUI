@@ -318,6 +318,21 @@ class DashboardHTTPHandler(BaseHTTPRequestHandler):
             self.send_json(history)
             return
 
+        elif path == "/api/beginner_guide":
+            guide_path = PROJECT_ROOT / "docs" / "beginner_guide.md"
+            guide_content = ""
+            if guide_path.exists():
+                try:
+                    with open(guide_path, "r", encoding="utf-8") as f:
+                        guide_content = f.read()
+                except Exception as e:
+                    guide_content = f"读取新手指南失败: {str(e)}"
+            else:
+                guide_content = "找不到新手指南文件 (docs/beginner_guide.md)"
+            self.send_json({"content": guide_content})
+            return
+
+
         # Fallback to 404
         self.send_error(404, "Page Not Found")
 

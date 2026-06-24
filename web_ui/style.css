@@ -1328,3 +1328,149 @@ body {
     color: var(--accent-cyan);
 }
 
+/* ==========================================
+   BEGINNER GUIDE CUSTOM STYLES
+   ========================================== */
+.guide-btn {
+    background: rgba(0, 240, 255, 0.08);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    color: var(--accent-cyan);
+    font-family: var(--font-outfit);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+.guide-btn:hover {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.guide-modal-content {
+    max-width: 750px;
+    width: 90%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.close-modal-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.close-modal-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.guide-modal-body {
+    overflow-y: auto;
+    max-height: 60vh;
+    padding: 20px 24px;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+.guide-modal-body h1 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.guide-modal-body h2 {
+    font-size: 1.1rem;
+    margin: 20px 0 10px 0;
+    color: var(--accent-cyan);
+}
+
+.guide-modal-body h3 {
+    font-size: 0.95rem;
+    margin: 14px 0 6px 0;
+    color: #fff;
+}
+
+.guide-modal-body p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.guide-modal-body code {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+}
+
+.guide-modal-body pre {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+}
+
+.guide-modal-body pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text-primary);
+}
+
+.guide-modal-body ul, .guide-modal-body ol {
+    margin-left: 18px;
+    margin-bottom: 14px;
+}
+
+.guide-modal-body li {
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+.alert-box {
+    background: rgba(94, 109, 130, 0.08);
+    border-left: 4px solid var(--text-secondary);
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin: 14px 0;
+    line-height: 1.5;
+}
+
+.alert-box.alert-TIP {
+    background: rgba(0, 255, 135, 0.04);
+    border-left-color: var(--accent-emerald);
+}
+
+.alert-box.alert-WARNING {
+    background: rgba(255, 159, 10, 0.04);
+    border-left-color: var(--gpu-color);
+}
+
+
