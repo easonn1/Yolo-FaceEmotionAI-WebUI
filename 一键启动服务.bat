@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 chcp 936 >nul
 title YOLO 人脸表情识别监控中心 - 一键启动器
 echo ==================================================
@@ -45,7 +46,7 @@ if %errorlevel% neq 0 (
     echo [错误] 未检测到 Python 运行环境！
     echo --------------------------------------------------
     echo 解决步骤：
-    echo 1. 请先下载并安装 Python (推荐使用 3.10 或 3.12 版本)。
+    echo 1. 请先下载并安装 Python （推荐使用 3.10 或 3.12 版本）。
     echo    官方下载地址: https://www.python.org/downloads/
     echo 2. 安装时请务必勾选 "[√] Add Python.exe to PATH" 选项！
     echo --------------------------------------------------
@@ -62,12 +63,12 @@ if "%PYTHON_CMD%" neq "python" (
 :: 2. 检测并创建 CPU 虚拟环境并安装依赖
 if not exist ".venv" (
     echo [提示] 首次运行，正在为您创建 CPU 虚拟环境并自动配置依赖...
-    echo (此过程仅在第一次运行时执行，需要连接网络，请耐心等待数分钟)
+    echo （此过程仅在第一次运行时执行，需要连接网络，请耐心等待数分钟）
     echo.
     
     "%PYTHON_CMD%" -m venv .venv
     if %errorlevel% neq 0 (
-        echo [错误] 创建虚拟环境 (.venv) 失败，请检查 Python 安装是否完整。
+        echo [错误] 创建虚拟环境 （.venv） 失败，请检查 Python 安装是否完整。
         pause
         exit /b
     )
@@ -79,7 +80,7 @@ if not exist ".venv" (
         .\.venv\Scripts\python -m pip install --upgrade pip >nul 2>&1
     )
     
-    echo 正在通过国内镜像加速安装项目依赖 (requirements.txt)...
+    echo 正在通过国内镜像加速安装项目依赖 （requirements.txt）...
     .\.venv\Scripts\pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     if %errorlevel% neq 0 (
         echo [提示] 镜像站下载失败，正在尝试使用默认官方源重新安装...
